@@ -1,0 +1,169 @@
+---
+title: "Data-Driven Analysis of Attendance Trends in Los Angeles Dodgers Home Games"
+author: "Preston Kilwien"
+date: "2025-12-16"
+output:
+  pdf_document: default
+  html_document: default
+---
+# Summary
+This analysis uses the 2022 Dodgers home game dataset to identify what drives higher or lower attendance numbers. From the data analysis, I will turn in my findings to management so we can implement a strategy for consistent attendance numbers.
+```{r}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+# Load Libraries
+```{r}
+library(tidyverse) # data wrangling + visualization
+library(lubridate) # easier date handling
+```
+# Read CSV file and quick look at sample rows
+```{r}
+dodgers_raw <- read.csv(
+"/Users/bellevue/DSC 630/dodgers-2022.csv",
+stringsAsFactors = FALSE
+)
+head(dodgers_raw)
+```
+# Check for missing values by column
+```{r}
+colSums(is.na(dodgers_raw))
+```
+```{r}
+dodgers <- dodgers_raw
+```
+# Create only variables we actually need and verify structure
+```{r}
+dodgers <- dodgers %>%
+mutate(
+# Weekend vs weekday flag
+weekend = ifelse(day_of_week %in% c("Friday", "Saturday", "Sunday"),
+"Weekend", "Weekday"),
+# Single promotion flag: Yes if any promotion exists
+any_promo = ifelse(
+  cap == "YES" | shirt == "YES" | fireworks == "YES" | bobblehead == "YES",
+  "Yes", "No"
+)
+)
+glimpse(dodgers)
+```
+# Attendance summary
+```{r}
+summary(dodgers$attend)
+quantile(
+dodgers$attend,
+probs = c(0.05, 0.25, 0.5, 0.75, 0.95),
+na.rm = TRUE
+)
+```
+# Weekend Versus Weekday
+```{r}
+weekend_summary <- dodgers %>%
+group_by(weekend) %>%
+summarise(
+games = n(),
+avg_attend = mean(attend),
+median_attend = median(attend)
+)
+weekend_summary
+```
+```{r}
+ggplot(dodgers, aes(x = weekend, y = attend)) +
+geom_boxplot() +
+labs(
+title = "Attendance by Weekend vs Weekday",
+x = "Game Type",
+y = "Attendance"
+)
+```
+# Day of the Week
+```{r}
+dow_summary <- dodgers %>%
+group_by(day_of_week) %>%
+summarise(
+games = n(),
+avg_attend = mean(attend)
+) %>%
+arrange(desc(avg_attend))
+dow_summary
+```
+```{r}
+ggplot(dow_summary,
+aes(x = reorder(day_of_week, avg_attend),
+y = avg_attend)) +
+geom_col() +
+coord_flip() +
+labs(
+title = "Average Attendance by Day of Week",
+x = "Day of Week",
+y = "Average Attendance"
+)
+```
+# Impact of Promotions 
+```{r}
+promo_summary <- dodgers %>%
+group_by(any_promo) %>%
+summarise(
+games = n(),
+avg_attend = mean(attend)
+)
+promo_summary
+```
+```{r}
+ggplot(dodgers,
+aes(x = any_promo, y = attend)) +
+geom_boxplot() +
+labs(
+title = "Attendance: Promotional vs Non-Promotional Games",
+x = "Any Promotion",
+y = "Attendance"
+)
+```
+# Weekday Promotions
+```{r}
+promo_weekday <- dodgers %>%
+group_by(weekend, any_promo) %>%
+summarise(
+games = n(),
+avg_attend = mean(attend),
+.groups = "drop"
+)
+promo_weekday
+```
+```{r}
+ggplot(promo_weekday,
+aes(x = weekend, y = avg_attend, fill = any_promo)) +
+geom_col(position = "dodge") +
+labs(
+title = "Promotion Impact by Day Type",
+x = "Day Type",
+y = "Average Attendance",
+fill = "Promotion"
+)
+```
+# Weather impact
+```{r}
+cor(dodgers$temp, dodgers$attend)
+```
+```{r}
+ggplot(dodgers, aes(x = temp, y = attend)) +
+geom_point(alpha = 0.7) +
+geom_smooth(method = "lm", se = FALSE) +
+labs(
+title = "Attendance vs Temperature",
+x = "Temperature",
+y = "Attendance"
+)
+```
+# Final Recommendations to Management:
+
+1. Focus promotional efforts on weekday games, where baseline attendance is consistently lower than on weekends.
+
+2. Use high-impact promotions such as giveaways and fireworks to increase midweek demand.
+
+3. Offer bundled weekday ticket packages that include food or parking to reduce the overall cost.
+
+4. Avoid relying on pricing alone to drive attendance. Use promotions to influence attendance on lower-demand dates.
+
+5. Allocate promotional resources strategically to games where the potential for attendance growth is greatest.
+
+
