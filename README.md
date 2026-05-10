@@ -9,9 +9,13 @@ Analyzed attendance trends for Los Angeles Dodgers home games using R and statis
 
 Skills Used:
 • R
+
 • ggplot2
+
 • Data Visualization 
+
 • Predictive Analysis
+
 • Business Recommendations
 
 ## Childcare Affordability Analysis
@@ -19,21 +23,34 @@ Created a multi-medium data storytelling project analyzing childcare affordabili
 
 Skills used:
 • R
+
 • Data Storytelling
+
 • Dashboard Design
+
 • Data Visualization
+
 • Policy Analysis
 
 ## Additonal Projects
+
 • NBA Game Outcome Prediction
+
 • Olympic Medal Prediction
+
 • Retail Sales Forecasting
+
 • Netflix Viewing Trends Analysis
+
 • Sports Supplements Analysis
+
 • TSA Complaint Analysis
+
 • ALS Patient Clustering Analysis
+
 • Kia/Hyundai Theft Analysis
 
 ## Contact
 • GitHub: PrestonK23 GitHub
+
 • LinkedIn: www.linkedin.com/in/preston-kilwien-33567166
